@@ -1,0 +1,272 @@
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '../utils';
+import { base44 } from '@/api/base44Client';
+import { motion } from 'framer-motion';
+import { 
+  ArrowLeft, 
+  FileText, 
+  BarChart3, 
+  MessageCircle, 
+  Rocket, 
+  FileOutput,
+  Sparkles,
+  Users,
+  School,
+  GraduationCap
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+
+export default function Home() {
+  const [existingPesga, setExistingPesga] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadExistingData();
+  }, []);
+
+  const loadExistingData = async () => {
+    const pesgas = await base44.entities.Pesga.list('-created_date', 1);
+    if (pesgas.length > 0) {
+      setExistingPesga(pesgas[0]);
+    }
+    setLoading(false);
+  };
+
+  const steps = [
+    {
+      number: '01',
+      title: 'קליטת נתונים',
+      description: 'הזנת פרטי הפסג"ה, נתונים כמותיים והעלאת קובץ השתלמויות',
+      icon: FileText,
+      page: 'Onboarding',
+      color: 'from-blue-500 to-blue-600'
+    },
+    {
+      number: '02',
+      title: 'ניתוח פדגוגי',
+      description: 'דשבורד ויזואלי המציג ניתוח מעמיק של נתוני ההשתלמויות',
+      icon: BarChart3,
+      page: 'Dashboard',
+      color: 'from-emerald-500 to-emerald-600'
+    },
+    {
+      number: '03',
+      title: 'שיחה רפלקטיבית',
+      description: 'דיאלוג מנהיגותי עם סוכן AI לחשיבה אסטרטגית',
+      icon: MessageCircle,
+      page: 'Reflection',
+      color: 'from-[#D4AF37] to-[#c4a030]'
+    },
+    {
+      number: '04',
+      title: 'חזון וקפיצה',
+      description: 'בניית תוכנית חזון ו"הקומה הבאה" של הפסג"ה',
+      icon: Rocket,
+      page: 'Vision',
+      color: 'from-amber-500 to-amber-600'
+    },
+    {
+      number: '05',
+      title: 'תוצרים',
+      description: 'דוחות, מכתב מנטור וייצוא לכלים חיצוניים',
+      icon: FileOutput,
+      page: 'Output',
+      color: 'from-rose-500 to-rose-600'
+    }
+  ];
+
+  const getStatusStep = () => {
+    if (!existingPesga) return 0;
+    const statusMap = {
+      'onboarding': 1,
+      'analysis': 2,
+      'reflection': 3,
+      'vision': 4,
+      'completed': 5
+    };
+    return statusMap[existingPesga.status] || 1;
+  };
+
+  return (
+    <div className="space-y-12">
+      {/* Hero Section */}
+      <motion.section 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="relative overflow-hidden rounded-3xl bg-white border-2 border-[#1E3A5F] p-8 md:p-12"
+      >
+        <div className="absolute top-0 left-0 w-full h-full opacity-5">
+          <div className="absolute top-10 left-10 w-32 h-32 bg-[#1E3A5F] rounded-full blur-3xl" />
+          <div className="absolute bottom-10 right-10 w-48 h-48 bg-[#1E3A5F] rounded-full blur-3xl" />
+        </div>
+        
+        <div className="relative z-10 text-center max-w-3xl mx-auto">
+          <h1 className="text-3xl md:text-5xl font-bold mb-4 leading-tight text-[#1E3A5F]">
+            טיפ טופ בפסג"ה
+          </h1>
+          
+          <p className="text-lg md:text-xl text-[#1E3A5F]/70 mb-8 leading-relaxed">
+            מערכת חכמה לניתוח, רפלקציה וחזון אסטרטגי למנהלי פסג"ה במחוז דרום. 
+            גלו תובנות מעמיקות, בנו תוכניות פעולה, והובילו את השינוי הפדגוגי.
+          </p>
+
+          <div className="flex justify-center">
+            <Link to={createPageUrl(existingPesga ? 'Dashboard' : 'Onboarding')}>
+              <Button 
+                size="lg"
+                className="bg-[#D4AF37] hover:bg-[#c4a030] text-[#1E3A5F] font-semibold"
+              >
+                {existingPesga ? 'המשך בתהליך' : 'התחל'}
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        {/* Personalized Stats */}
+        {existingPesga && (
+          <div className="relative z-10 mt-8 pt-8 border-t border-[#1E3A5F]/20">
+            <p className="text-center text-[#1E3A5F] mb-4">
+              שלום <span className="font-bold">{existingPesga.personal_name}</span>, מנהל/ת פסג"ה {existingPesga.city}
+            </p>
+            <div className="grid grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <School className="w-5 h-5 text-[#D4AF37]" />
+                  <span className="text-2xl font-bold text-[#1E3A5F]">{existingPesga.kindergartens_count || 0}</span>
+                </div>
+                <p className="text-sm text-[#1E3A5F]/60">גנים</p>
+              </div>
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <Users className="w-5 h-5 text-[#D4AF37]" />
+                  <span className="text-2xl font-bold text-[#1E3A5F]">{existingPesga.elementary_count || 0}</span>
+                </div>
+                <p className="text-sm text-[#1E3A5F]/60">יסודיים</p>
+              </div>
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <GraduationCap className="w-5 h-5 text-[#D4AF37]" />
+                  <span className="text-2xl font-bold text-[#1E3A5F]">{existingPesga.high_school_count || 0}</span>
+                </div>
+                <p className="text-sm text-[#1E3A5F]/60">תיכונים</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </motion.section>
+
+      {/* Process Steps */}
+      <section>
+        <div className="text-center mb-10">
+          <h2 className="text-2xl md:text-3xl font-bold text-[#1E3A5F] mb-3">
+            מסע המנהיגות הפדגוגית
+          </h2>
+          <p className="text-[#1E3A5F]/60 max-w-2xl mx-auto">
+            חמישה שלבים מובנים שיובילו אתכם מנתונים גולמיים לתובנות מעשיות ותוכנית פעולה
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-5 gap-4">
+          {steps.map((step, index) => {
+            const Icon = step.icon;
+            const currentStep = getStatusStep();
+            const isCompleted = index + 1 < currentStep;
+            const isCurrent = index + 1 === currentStep;
+
+            return (
+              <motion.div
+                key={step.number}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+              >
+                <Link to={createPageUrl(step.page)}>
+                  <Card className={`h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer border-2 ${
+                    isCurrent ? 'border-[#D4AF37] bg-[#D4AF37]/5' : 
+                    isCompleted ? 'border-emerald-500 bg-emerald-50' : 
+                    'border-[#1E3A5F]/40 hover:border-[#1E3A5F]'
+                  }`}>
+                    <CardContent className="p-5">
+                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${step.color} flex items-center justify-center mb-4 shadow-lg`}>
+                        <Icon className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="text-xs font-bold text-[#D4AF37] mb-1">
+                        שלב {step.number}
+                      </div>
+                      <h3 className="font-bold text-[#1E3A5F] mb-2">
+                        {step.title}
+                      </h3>
+                      <p className="text-sm text-[#1E3A5F]/60 leading-relaxed">
+                        {step.description}
+                      </p>
+                      {isCompleted && (
+                        <div className="mt-3 text-xs text-emerald-600 font-medium">
+                          ✓ הושלם
+                        </div>
+                      )}
+                      {isCurrent && (
+                        <div className="mt-3 text-xs text-[#D4AF37] font-medium">
+                          ← בתהליך
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </Link>
+              </motion.div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Info Cards */}
+      <section className="grid md:grid-cols-2 gap-6">
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-[#1E3A5F]/5 to-transparent">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-bold text-[#1E3A5F] mb-3">
+              מה תקבלו בסוף התהליך?
+            </h3>
+            <ul className="space-y-2 text-[#1E3A5F]/70">
+              <li className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+                ניתוח מעמיק של נתוני ההשתלמויות
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+                תובנות SWOT פדגוגי מותאם אישית
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+                תוכנית חזון ופעולה מפורטת
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+                מכתב מנטור אישי ומעצים
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+                דוחות לייצוא וכלי הצגה
+              </li>
+            </ul>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-[#D4AF37]/10 to-transparent">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-bold text-[#1E3A5F] mb-3">
+              איך זה עובד?
+            </h3>
+            <p className="text-[#1E3A5F]/70 leading-relaxed">
+              המערכת משלבת בינה מלאכותית עם מתודולוגיה מנהיגותית. 
+              תזינו את הנתונים, תעלו את קובץ ההשתלמויות, ותנהלו שיחה רפלקטיבית 
+              עם סוכן AI שמבין את עולם הפסג"ה. בסוף תקבלו תמונה מלאה 
+              ותוכנית פעולה מותאמת אישית.
+            </p>
+          </CardContent>
+        </Card>
+      </section>
+    </div>
+  );
+}
